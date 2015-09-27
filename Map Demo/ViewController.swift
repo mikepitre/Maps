@@ -8,13 +8,22 @@
 
 import UIKit
 import MapKit
+import CoreLocation
 
-class ViewController: UIViewController, MKMapViewDelegate {
+class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate {
 
     @IBOutlet weak var map: MKMapView!
     
+    let locationManager = CLLocationManager()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        locationManager.delegate = self
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager.requestWhenInUseAuthorization()
+        locationManager.startUpdatingLocation()
+        
         
         //Niargra Falls: 43.082816, -79.074200
         
@@ -53,6 +62,24 @@ class ViewController: UIViewController, MKMapViewDelegate {
         annotation.subtitle = "I'd like to go here"
         
         map.addAnnotation(annotation)
+        
+    }
+    
+    func locationManager(manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        
+        print(locations)
+        
+        let userLocation:CLLocation = locations[0]
+        let latitude = userLocation.coordinate.latitude
+        let longitude = userLocation.coordinate.longitude
+        
+        let latDelta:CLLocationDegrees = 0.05
+        let lonDelta:CLLocationDegrees = 0.05
+        let span:MKCoordinateSpan = MKCoordinateSpanMake(latDelta, lonDelta)
+        let location:CLLocationCoordinate2D = CLLocationCoordinate2DMake(latitude, longitude)
+        let region:MKCoordinateRegion = MKCoordinateRegionMake(location, span)
+        
+        self.map.setRegion(region, animated: true)
         
     }
 
